@@ -27,13 +27,13 @@ class Blockchain(object):
             'transactions': self.current_transactions,
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
+        }
 
         # Reset the current list of current_transactions
         self.current_transactions = []
 
         self.chain.append(block)
         return block
-        }
 
     def new_transaction(self):
         # Adds a new transaction to the list of transactions
