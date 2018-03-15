@@ -2,7 +2,10 @@
 
 import hashlib
 import json
+
 from time import time
+from uuid import uuid4
+
 
 class Blockchain(object):
     def __init__(self):
@@ -12,7 +15,7 @@ class Blockchain(object):
         # Create the genesis Block
         self.new_block(previous_hash=1, proof=100)
 
-    def new_block(self):
+    def new_block(self, proof, previous_hash=None):
         # Creates a new Block and adds it to the chain
         """
         生成新块
@@ -23,7 +26,7 @@ class Blockchain(object):
 
         block = {
             'index': len(self.chain) + 1,
-            'timestamp':time(),
+            'timestamp': time(),
             'transactions': self.current_transactions,
             'proof': proof,
             'previous_hash': previous_hash or self.hash(self.chain[-1]),
@@ -53,6 +56,26 @@ class Blockchain(object):
 
         return self.last_block['index'] + 1
 
+    def proof_of_work(self, last_proof):
+        """
+        简单的工作量证明：
+        - 查找一个p’ 使得hash(pp') 以4个0开头
+        - p 是上一个块的证明，p’ 是当前的证明
+        :param last_proof: <int>
+        :return: <int>
+        """
+
+        proof = 0
+        while self.valid_proof(last_proof, proof) is False:
+            proof += 1
+
+        return proof
+
+    @property
+    def last_block(self):
+        # Returns the last Block in the chain
+        return self.chain[-1]
+
     @staticmethod
     def hash(block):
         # Hashes a Block
@@ -67,7 +90,15 @@ class Blockchain(object):
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
 
-    @property
-    def last_block(self):
-        # Returns the last Block in the chain
-        return self.chain[-1]
+    @staticmethod
+    def valid_proof(last_proof, proof):
+        """
+        验证证明：是否hash(last_proof, proof) 以4个0开头？
+        :param last_proof: <int> Previous proof
+        : param proof: <int> Current proof_of_work
+        :return: <bool> True if correct, False if not.
+        """
+
+        guess = f'{last_proof}{proof}'.encode()
+        guess_hash = hashlib.sha256(guess).hexdigest()
+        return guess_hash[:4] == '0000'
