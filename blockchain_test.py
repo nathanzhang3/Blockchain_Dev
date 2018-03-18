@@ -125,7 +125,19 @@ def mine():
 # 创建/transactions/new POST接口,可以给接口发送交易数据
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
-    return 'We will add a new transaction'
+    values = request.get_json()
+
+    # Check that the required fields are in the POST'ed data
+    required = ['sender', 'recipient', 'amount']
+    if not all(k in values for k in required):
+        return 'Missing values', 400
+
+    # Create a new transaction
+    index = blockchain.new_transaction(values['sender'], values['recipient'],
+                                       values['amount'])
+
+    response = {'message': f'Transaction will be added to Block {index}'}
+    return jsonify(response), 201
 
 
 # 创建 /chain 接口, 返回整个区块链
