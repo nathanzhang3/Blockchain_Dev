@@ -119,7 +119,30 @@ blockchain = Blockchain()
 # 创建/mine GET接口
 @app.route('/mine', methods=['GET'])
 def mine():
-    return 'We will mine a new Block'
+    # We run the proof of work algorithm to get the next proof...
+    last_block = blockchain.last_block
+    last_proof = last_block('proof')
+    proof = blockchain.proof_of_work(last_proof)
+
+    # 给工作量证明的节点提供奖励
+    # 发送者为‘0’表明是新挖出的币
+    blockchain.new_transaction(
+        sender='0',
+        recipient=node_identifier,
+        amount=1
+    )
+
+    # Forge the new Block by adding it to the full_chain
+    block = blockchain.new_block(proof)
+
+    response = {
+        'message': 'New Block Forged',
+        'index': block['index'],
+        'transactions': block['transactions'],
+        'proof': block['proof'],
+        'previous_hash': block['previous_hash'],
+    }
+    return jsonify(response), 200
 
 
 # 创建/transactions/new POST接口,可以给接口发送交易数据
