@@ -2,9 +2,11 @@
 
 import hashlib
 import json
-
+from textwrap import dedent
 from time import time
 from uuid import uuid4
+
+from flask import Flask, jsonify, request
 
 
 class Blockchain(object):
@@ -102,3 +104,40 @@ class Blockchain(object):
         guess = f'{last_proof}{proof}'.encode()
         guess_hash = hashlib.sha256(guess).hexdigest()
         return guess_hash[:4] == '0000'
+
+
+# Instantiate our Node 创建一个节点
+app = Flask(__name__)
+
+# Generate a globally unique address for this Node 为节点创建一个随机的名字
+node_identifier = str(uuid4()).replace('-', '')
+
+# Instantiate the Blockchain 实例Blockchain类
+blockchain = Blockchain()
+
+
+# 创建/mine GET接口
+@app.route('/mine', methods=['GET'])
+def mine():
+    return 'We will mine a new Block'
+
+
+# 创建/transactions/new POST接口,可以给接口发送交易数据
+@app.route('/transactions/new', methods=['POST'])
+def new_transaction():
+    return 'We will add a new transaction'
+
+
+# 创建 /chain 接口, 返回整个区块链
+@app.route('/chain', methods=['GET'])
+def full_chain():
+    response = {
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain)
+    }
+    return jsonify(response), 200
+
+
+# 服务运行在端口5000上
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=500)
