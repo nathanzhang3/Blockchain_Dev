@@ -1,4 +1,4 @@
-# https://learnblockchain.cn/2017/10/27/build_blockchain_by_python/
+# https://hackernoon.com/learn-blockchains-by-building-one-117428612f46
 
 import hashlib
 import json
@@ -116,7 +116,7 @@ node_identifier = str(uuid4()).replace('-', '')
 blockchain = Blockchain()
 
 
-# 创建/mine GET接口
+# Tell our server to mine a new block
 @app.route('/mine', methods=['GET'])
 def mine():
     # We run the proof of work algorithm to get the next proof...
@@ -145,7 +145,7 @@ def mine():
     return jsonify(response), 200
 
 
-# 创建/transactions/new POST接口,可以给接口发送交易数据
+#  Create a new transaction to a block
 @app.route('/transactions/new', methods=['POST'])
 def new_transaction():
     values = request.get_json()
@@ -163,7 +163,7 @@ def new_transaction():
     return jsonify(response), 201
 
 
-# 创建 /chain 接口, 返回整个区块链
+#  Return the full Blockchain
 @app.route('/chain', methods=['GET'])
 def full_chain():
     response = {
